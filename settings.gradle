@@ -1,0 +1,2 @@
+rootProject.name = 'channie-spring-boot-starter'
+enableFeaturePreview('STABLE_PUBLISHING')

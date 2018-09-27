@@ -1,0 +1,66 @@
+apply plugin: 'java-library'
+apply plugin: 'maven-publish'
+
+group = 'uk.co.channie'
+version = '0.0.1'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+tasks.withType(JavaCompile) {
+	options.encoding = 'UTF-8'
+}
+
+repositories {   
+     jcenter()
+}
+
+dependencies {
+  compile               "org.springframework.boot:spring-boot-autoconfigure:$springBootVersion",
+                        "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+  annotationProcessor   "org.projectlombok:lombok:$lombokVersion"
+  compileOnly           "org.projectlombok:lombok:$lombokVersion"
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    classifier = 'sources'
+}
+
+task javadocJar(type: Jar) {
+    from javadoc
+    classifier = 'javadoc'
+}
+
+publishing {
+    publications {  
+         mavenJava(MavenPublication) {
+            groupId project.group
+            artifactId project.name
+            version project.version
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+        }
+    }
+    repositories {
+        maven {
+            credentials {
+                username nexusUsername
+                password nexusPassword
+            }
+            def baseUrl = "${nexusUrl}/repository/maven-"
+            url = version.endsWith('SNAPSHOT') ? baseUrl+"snapshots" : baseUrl+"releases"
+        }
+    }
+}
+
+javadoc {
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html4', true)
+    }
+}
+
+wrapper {
+    gradleVersion = '4.10.2'
+}
